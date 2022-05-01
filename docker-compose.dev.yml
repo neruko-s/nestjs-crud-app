@@ -1,0 +1,17 @@
+services:
+  devdb:
+    image: postgres:14
+    container_name: devdb
+    networks:
+      - dev_net
+    ports:
+      - 5433:5432
+    env_file:
+      - .env.dev
+    volumes:
+      - dev-pgdata:/var/lib/postgresql/data
+
+networks:
+  dev_net:
+volumes:
+  dev-pgdata:
