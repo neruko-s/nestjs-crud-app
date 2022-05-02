@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   REPO: ${{ github.repository }}
-  CONTAINER: ${{ github.repository }}
+  CONTAINER: nestjs-crud-app
 
 jobs:
   push_to_registry:
