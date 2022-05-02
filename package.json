@@ -27,7 +27,8 @@
     "docker:devdb:up": "docker-compose -f docker-compose.dev.yml up -d devdb && npm run docker:devdb:migrate:local",
     "docker:test:build": "docker-compose -f docker-compose.test.yml build --no-cache",
     "docker:test:migrate": "docker-compose -f docker-compose.test.yml run --rm testserver bash scripts/wait-for-it.sh testdb:5432 -- npx prisma migrate dev --name $npm_config_name",
-    "docker:test": "npm run docker:test:migrate:reset && npx dotenv -e .env.test.local -- npm run test",
+    "docker:test": "npm run docker:test:migrate:reset && docker-compose -f docker-compose.test.yml run --rm testserver bash scripts/wait-for-it.sh testdb:5432 -- npm run test",
+    "docker:test:local": "npm run docker:test:migrate:reset && npx dotenv -e .env.test.local -- npm run test",
     "docker:test:migrate:reset": "npx dotenv -e .env.test.local -- npx prisma migrate reset --force"
   },
   "dependencies": {
