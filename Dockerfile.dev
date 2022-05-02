@@ -1,0 +1,20 @@
+FROM node:18-alpine3.15
+
+WORKDIR /usr/src/app
+
+RUN apk update && \
+  apk add bash && \
+  rm -rf /var/cache/apk/*
+
+COPY package*.json ./
+COPY prisma ./prisma/
+
+RUN npm i -g npm@8.5.5 && npm i
+
+COPY . .
+
+RUN chmod +x scripts/wait-for-it.sh
+RUN npm run build
+RUN npx prisma generate
+
+EXPOSE 3000
