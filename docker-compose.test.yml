@@ -1,0 +1,37 @@
+services:
+  testserver:
+    container_name: testserver
+    build:
+      context: .
+      dockerfile: ./Dockerfile.test
+    ports:
+      - "3002:3000"
+    networks:
+      - test_net
+    volumes:
+      - .:/usr/src/app
+      - ./package.json:/usr/src/app/package.json
+    env_file:
+      - .env.test
+    depends_on:
+      - testdb
+  
+  testdb:
+    image: postgres:14
+    restart: always
+    container_name: testdb
+    networks:
+      - test_net
+    expose:
+      - 5435
+    ports:
+      - 5435:5432
+    env_file:
+      - .env.test
+    volumes:
+      - test-pgdata:/var/lib/postgresql/data
+
+networks:
+  test_net:
+volumes:
+  test-pgdata:
