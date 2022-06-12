@@ -10,6 +10,8 @@ env:
   REGISTRY: ghcr.io
   REPO: ${{ github.repository }}
   CONTAINER: nestjs-crud-app
+  TAG: '1.0.0' # 適宜変更
+  PORT: 51001 # 適宜変更（本番環境の空きポートと相談しながら）テスト：51001 本番：なし
 
 jobs:
   push_to_registry:
@@ -33,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPO }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPO }}:${{ env.TAG }}
 
   deploy:
     name: Deploy to server
@@ -60,13 +62,13 @@ jobs:
         run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker rm -v ${{ env.CONTAINER }}"
 
       - name: Pull latest container
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ${{ env.REGISTRY }}/${{ env.REPO }}:latest"
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ${{ env.REGISTRY }}/${{ env.REPO }}:${{ env.TAG }}"
 
       - name: Delete unused images
         run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker image prune"
 
       - name: Start docker container
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker run -p 3010:3000 -e DATABASE_URL=${{ secrets.DATABASE_URL }} -d --name=${{ env.CONTAINER }} --net=caddy-net ${{ env.REGISTRY }}/${{ env.REPO }}:latest"
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker run -p ${{ env.PORT }}:3000 -e DATABASE_URL=${{ secrets.DATABASE_URL }} -d --name=${{ env.CONTAINER }} --net=caddy-net ${{ env.REGISTRY }}/${{ env.REPO }}:${{ env.TAG }}"
 
       - name: database migrate
         run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker exec ${{ env.CONTAINER }} npx prisma migrate dev --name init"
